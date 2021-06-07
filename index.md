@@ -1,3 +1,0 @@
-# Jekyll
-# HEXO
-## Jekyll + Hexo
