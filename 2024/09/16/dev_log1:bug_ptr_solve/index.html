@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>开发记录：一次指针错误的BUG | morris blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="背景在c语言开发中，经常会遇到使用指针，但是因为指针本身的复杂特性如果稍不留意就会产生一些意想不到的错误，尤其是在嵌入式环境中，指针的错误很难排查。因此，本篇文章就记录一次在工作中使用指针产生错误的例子，以供自己后续参考并避免此类错误。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="开发记录：一次指针错误的BUG">
+<meta property="og:url" content="http://example.com/2024/09/16/dev_log1:bug_ptr_solve/index.html">
+<meta property="og:site_name" content="morris blog">
+<meta property="og:description" content="背景在c语言开发中，经常会遇到使用指针，但是因为指针本身的复杂特性如果稍不留意就会产生一些意想不到的错误，尤其是在嵌入式环境中，指针的错误很难排查。因此，本篇文章就记录一次在工作中使用指针产生错误的例子，以供自己后续参考并避免此类错误。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2024-09-16T20:57:48.000Z">
+<meta property="article:modified_time" content="2024-09-17T07:05:49.929Z">
+<meta property="article:author" content="morris-wei">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="morris blog" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">morris blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Suche"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Suche"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-dev_log1:bug_ptr_solve" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/09/16/dev_log1:bug_ptr_solve/" class="article-date">
+  <time class="dt-published" datetime="2024-09-16T20:57:48.000Z" itemprop="datePublished">2024-09-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      开发记录：一次指针错误的BUG
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>在c语言开发中，经常会遇到使用指针，但是因为指针本身的复杂特性如果稍不留意就会产生一些意想不到的错误，尤其是在嵌入式环境中，指针的错误很难排查。因此，本篇文章就记录一次在工作中使用指针产生错误的例子，以供自己后续参考并避免此类错误。</p>
+<span id="more"></span>
+
+<h1 id="错误的出现及解决"><a href="#错误的出现及解决" class="headerlink" title="错误的出现及解决"></a>错误的出现及解决</h1><p>在一个嵌入式设备初始化(比如交换机)的时候，需要将写入flash中的文件读出，记配置文件的结构体为pDemo_uc_config</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    INT32 portEn;</span><br><span class="line">    INT32 portStatus;</span><br><span class="line">&#125; pDemo_uc_config</span><br></pre></td></tr></table></figure>
+
+<p>在init函数中进行初始化，init函数又调用了configInit函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> rv = configInit(p_port_config, porten, portStatus);</span><br><span class="line"><span class="keyword">if</span>(rv)&#123;</span><br><span class="line">    <span class="comment">//....</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//下面是一串包含p_port_config涉及到p_port_config的逻辑</span></span><br></pre></td></tr></table></figure>
+<p>这其中configInit函数的原型如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">configInit(pDemo_uc_config *p_port_config, INT32 porten, INT32 portStatus)&#123;</span><br><span class="line">    p_port_config = (pDemo_uc_config*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(pDemo_uc_config));</span><br><span class="line">    <span class="comment">//初始化逻辑...</span></span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="keyword">return</span> rv;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行后，发现交换机会卡死在涉及到p_port_config逻辑中使用p_port_config指针的地方。<br>在卡死的地方打印p_port_config的值，显示为nil，显然使用了空指针。</p>
+<p>既然定位到了空指针，那么空指针又是怎么来的呢？注意到configInit函数第一个参数使用的是pDemo_uc_config* 也就是一个指针变量，本来书写这段代码含义是将p_port_config指向的内容初始化，但是并没有出现初始化，究其原因是形参p_port_config和外部的实参p_port_config都是指针变量，指针变量也是变量的一种，当函数调用时，实参对形参确实赋值了，但是在返回时函数内的形参改变并不会反应到外部实参中。</p>
+<p>那么如何才能把函数内部的形参变化反映到实参上呢？参考平常的引用或者指针传参的经验，就是在使用一次指针。将configInit函数设计如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">configInit(pDemo_uc_config **pp_port_config, INT32 porten, INT32 portStatus)&#123;</span><br><span class="line">    *p_port_config = (pDemo_uc_config*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(pDemo_uc_config));</span><br><span class="line">    <span class="comment">//初始化逻辑...</span></span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="keyword">return</span> rv;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用configInit的时候</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">configInit(&amp;p_port_config, porten, portStatus);</span><br></pre></td></tr></table></figure>
+<p>通过使用一个二级指针，该二级指针指向的是一个指向config结构体的指针，这样就可以达到对指针指向的config结构体初始化的目的。</p>
+<p>当然，也可以修改函数的返回值使其返回config结构体指针完成赋值，不过在公司平台中给出的函数原型中返回值默认是错误码，因此这样无法进行改动。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/09/16/dev_log1:bug_ptr_solve/" data-id="cm1638z0g0001y4yqf98hffkf" data-title="开发记录：一次指针错误的BUG" class="article-share-link"><span class="fa fa-share">Teilen</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/09/">September 2024</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">letzter Beitrag</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/09/16/dev_log1:bug_ptr_solve/">开发记录：一次指针错误的BUG</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 morris-wei<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
