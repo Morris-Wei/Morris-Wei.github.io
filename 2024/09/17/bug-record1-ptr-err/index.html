@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="/img/favicon.png">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css">
+
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+  <title>错误记录(1)：指针错误 - morris blog</title>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  <header>
+    <nav id="navbar" class="navbar fixed-nav scrolling-navbar">
+  <div class="container">
+    <div class="mark-wrapper">
+       
+      <div class="title-mark">Peomas</div>
+    </div>
+  
+    <button id="menu-btn" class="btn menu-btn" type="button" data-bs-toggle="collapse" data-bs-target="#nav-menu">
+      <div class="menu-icon"><span></span><span></span><span></span></div>
+    </button>
+  
+    <div id="nav-menu" class="collapse menu-wrapper">
+      <ul>
+        
+          <li>
+            <a href="/">Home </a>
+          </li>
+        
+          <li>
+            <a href="/archives">Archives </a>
+          </li>
+        
+          <li>
+            <a href="/categories">Category </a>
+          </li>
+        
+          <li>
+            <a href="/tags">Tag </a>
+          </li>
+        
+          <li>
+            <a href="/about">About </a>
+          </li>
+        
+        <li class="search-icon">
+          <button class="btn" data-bs-toggle="modal" data-bs-target="#searchModal" aria-label="Search">
+            <i class="fas fa-search"></i>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  </header>
+
+  <main>
+    <div class="container">
+      <div id="main">
+        <div class="row py-5">
+          <div class="col">
+            <div class="row">
+  <div class="left-content">
+    <article class="post-wrapper markdown-body">
+  <h2 class="post-title">
+    错误记录(1)：指针错误
+  </h2>
+  <div class="post-meta">
+    <time datetime="Invalid date Invalid date ">2024-09-17</time>
+    
+    
+       
+    
+    
+       
+    
+    
+  </div>
+  
+  <div id="content">
+    <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><span id="more"></span>
+<p>在c语言开发中，经常会遇到使用指针，但是因为指针本身的复杂特性如果稍不留意就会产生一些意想不到的错误，且指针的错误很难排查。因此，本篇文章就记录一次在工作中使用指针产生错误的例子，以供自己后续参考并避免此类错误。</p>
+<h1 id="错误的出现及解决"><a href="#错误的出现及解决" class="headerlink" title="错误的出现及解决"></a>错误的出现及解决</h1><p>在一个端口初始化的时候，需要将写入flash中的文件读出，配置文件的结构体为pDemo_uc_config</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    INT32 portEn;</span><br><span class="line">    INT32 portStatus;</span><br><span class="line">&#125; pDemo_uc_config</span><br></pre></td></tr></table></figure>
+
+<p>在init函数中进行初始化，init函数又调用了configInit函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> rv = configInit(p_port_config, porten, portStatus);</span><br><span class="line"><span class="keyword">if</span>(rv)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">/*exception handle*/</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*下面是一串包含p_port_config涉及到p_port_config的逻辑*/</span></span><br></pre></td></tr></table></figure>
+<p>configInit原型如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">configInit(pDemo_uc_config *p_port_config, INT32 porten, INT32 portStatus)</span><br><span class="line">&#123;</span><br><span class="line">    p_port_config = (pDemo_uc_config*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(pDemo_uc_config));</span><br><span class="line">    <span class="comment">/*初始化逻辑...*/</span></span><br><span class="line">    <span class="comment">/*...*/</span></span><br><span class="line">    <span class="keyword">return</span> rv;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行后，发现会卡死在涉及到p_port_config逻辑中使用p_port_config指针的地方。<br>在卡死的地方打印p_port_config的值，显示为nil，显然使用了空指针。</p>
+<p>既然定位到了空指针，那么空指针又是怎么来的呢？注意到configInit函数第一个参数使用的是pDemo_uc_config* 也就是一个指针变量，本来书写这段代码含义是将p_port_config指向的内容初始化，但是并没有出现初始化，究其原因是形参p_port_config和外部的实参p_port_config都是指针变量，指针变量也是变量的一种，当函数调用时，实参对形参确实赋值了，但是在返回时函数内的形参改变并不会反应到外部实参中。</p>
+<p>那么如何才能把函数内部的形参变化反映到实参上呢？参考平常的引用或者指针传参的经验，就是在使用一次指针。将configInit函数设计如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">configInit(pDemo_uc_config **pp_port_config, INT32 porten, INT32 portStatus)</span><br><span class="line">&#123;</span><br><span class="line">    *p_port_config = (pDemo_uc_config*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(pDemo_uc_config));</span><br><span class="line">    <span class="comment">/*初始化逻辑...*/</span></span><br><span class="line">    <span class="comment">/*...*/</span></span><br><span class="line">    <span class="keyword">return</span> rv;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用configInit的时候</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">configInit(&amp;p_port_config, porten, portStatus);</span><br></pre></td></tr></table></figure>
+<p>通过使用一个二级指针，该二级指针指向的是一个指向config结构体的指针，这样就可以达到对指针指向的config结构体初始化的目的。</p>
+<p>当然，也可以修改函数的返回值使其返回config结构体指针完成赋值，但初始设计给出的函数原型中返回值默认是错误码，因此这样无法进行改动。</p>
+
+  </div>
+
+</article>
+  </div>
+  <div class="right-content">
+    <div id="toc" class="toc-wrapper"></div>
+  <div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+     
+  <button id="scroll-to-top" class="btn btn-top" aria-label="Scroll To Top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+ 
+
+  </main>
+
+  <div class="footer-wrapper">
+  <div class="left-content"></div>
+  <div class="right-content">
+    <div>Copyright &copy;2026</div>
+    <div>Powered By <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> - Theme <a target="_blank" rel="noopener" href="https://github.com/thomasyu929/hexo-theme-peomas">Peomas</a></div>
+  </div>
+</div>
+
+  <div id="searchModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Search</h5>
+        <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="input-wrapper">
+          <i class="fas fa-search"></i>
+          <input id="search" class="search-input" type="text" placeholder="Input content to search..." />
+        </div>
+        <ul id="result" class="list-group result-wrapper">
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/js/bootstrap.min.js"></script>
+
+
+<script src="/js/prism.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css">
+
+  
+<script src="/js/nprogress.js"></script>
+
+
+
+ 
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.min.js"></script>
+
+  
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.css">
+
+ 
+
+
+<script src="/js/event.js"></script>
+
+
+<script src="/js/search.js"></script>
+
+
+<script src="/js/plugin.js"></script>
+
+
+
+</body>
+
+</html>
