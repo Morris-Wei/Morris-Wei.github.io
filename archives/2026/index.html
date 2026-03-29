@@ -397,18 +397,25 @@
             <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" alt="loading">
             <div class="container container-unloaded">
                 <main class="main index-page">
+            
         <article class="index-post">
-            <a class="abstract-title" href="/2026/01/25/git/">
-                <span class="abstract-title-text">git常用指令</span>
+            <a class="abstract-title" href="/2026/03/29/linux_rebuild/">
+                <span class="abstract-title-text">linux编译(1) qemu下的initrams最小启动</span>
             </a>
             <div class="abstract-content">
-                <h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><p>总结下工作时常用到的git指令，基本的操作指令略去</p>
+                qemu说明linux 版本linux-5.10.244
+busybox 1.35.0 (太老的busybox如1.25，编译会有问题)
+ARM 通用开发板（vexpress-v7 &#x2F;virt）qemu模拟
+启动qemu模拟，需要以下三个东西
+123zImage：ARM Linux 内核镜像vexpress-v7.dtb：通用 ARM 设备树（替代 IMX6ULL 设备树）rootfs.cpio.gz：根文件系统（busybox 构建）
+
+流程环境配置1234sudo apt updatesudo apt install -y gcc make git bison flex l...
             </div>
             <!-- read more -->
             <div class="abstract-post-meta">
                 <!-- date -->
-                <div class="abstract-date" title="Last updated: 2026/01/25">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2026/01/25</span>
+                <div class="abstract-date" title="Last updated: 2026/03/29">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2026/03/29</span>
                 </div>
                 <!-- tags -->
             </div>
@@ -461,8 +468,8 @@
             <div class="archive-year"> 2026 </div>
             <ul class="year-list">
         <li class="archive-post-item">
-            <span class="archive-post-date">01/25</span>
-            <a class="archive-post-title" href="/2026/01/25/git/">git常用指令</a>
+            <span class="archive-post-date">03/29</span>
+            <a class="archive-post-title" href="/2026/03/29/linux_rebuild/">linux编译(1) qemu下的initrams最小启动</a>
         </li>
                 </ul>
             <div class="archive-year"> 2024 </div>
