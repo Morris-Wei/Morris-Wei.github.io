@@ -10,21 +10,23 @@
     <meta name="copyright" content="morris-wei">
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     <meta name="description" content="">
-    <meta name="description" content="背景在c语言开发中，经常会遇到使用指针，但是因为指针本身的复杂特性如果稍不留意就会产生一些意想不到的错误，且指针的错误很难排查。因此，本篇文章就记录一次在工作中使用指针产生错误的例子，以供自己后续参考并避免此类错误。">
+    <meta name="description" content="前言上篇介绍最小启动，但通常实际系统启动时我们需要uboot引导内核代码，并将四大件压缩在sd卡或flash等储存介质中，系统上电后自行启动">
 <meta property="og:type" content="article">
-<meta property="og:title" content="错误记录(1)：指针错误">
-<meta property="og:url" content="http://example.com/2024/09/17/bug-record1-ptr-err/index.html">
+<meta property="og:title" content="linux编译(2) qemu下的uboot以sd镜像方式引导linux启动">
+<meta property="og:url" content="http://example.com/2026/04/07/linux_uboot_qemu/index.html">
 <meta property="og:site_name" content="morris blog">
-<meta property="og:description" content="背景在c语言开发中，经常会遇到使用指针，但是因为指针本身的复杂特性如果稍不留意就会产生一些意想不到的错误，且指针的错误很难排查。因此，本篇文章就记录一次在工作中使用指针产生错误的例子，以供自己后续参考并避免此类错误。">
+<meta property="og:description" content="前言上篇介绍最小启动，但通常实际系统启动时我们需要uboot引导内核代码，并将四大件压缩在sd卡或flash等储存介质中，系统上电后自行启动">
 <meta property="og:locale">
-<meta property="article:published_time" content="2024-09-17T00:15:00.000Z">
-<meta property="article:modified_time" content="2026-01-24T16:53:47.628Z">
+<meta property="og:image" content="http://example.com/image/qemu_uboot_linux_1.png">
+<meta property="article:published_time" content="2026-04-07T15:20:13.000Z">
+<meta property="article:modified_time" content="2026-04-07T15:34:12.011Z">
 <meta property="article:author" content="morris-wei">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/image/qemu_uboot_linux_1.png">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
-    <title>错误记录(1)：指针错误 · morriswei&#39;s Studio</title>
+    <title>linux编译(2) qemu下的uboot以sd镜像方式引导linux启动 · morriswei&#39;s Studio</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -242,7 +244,7 @@
             <a href="/">morriswei&#39;s Studio.</a>
         </div>
         <div class="post-title header-element">
-            <a href="#" class="post-name">错误记录(1)：指针错误</a>
+            <a href="#" class="post-name">linux编译(2) qemu下的uboot以sd镜像方式引导linux启动</a>
         </div>
     </div>
 </header>
@@ -269,7 +271,7 @@
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
-                错误记录(1)：指针错误
+                linux编译(2) qemu下的uboot以sd镜像方式引导linux启动
             <!-- 404 -->
         </h1>
         <!-- 副标题 -->
@@ -285,12 +287,12 @@
 
                 <!-- 文章字数统计 -->
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">616</span>阅读时长: <span class="post-count reading-time">2 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">1.6k</span>阅读时长: <span class="post-count reading-time">7 min</span></span>
                     </div>
                 <div class="post-intro-meta">
                     <!-- 撰写日期 -->
                     <span class="iconfont-archer post-intro-calander">&#xe676;</span>
-                    <span class="post-intro-time">2024/09/17</span>
+                    <span class="post-intro-time">2026/04/07</span>
                     <!-- busuanzi -->
                         <span id="busuanzi_container_page_pv" class="busuanzi-pv">
                             <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
@@ -442,43 +444,322 @@
             <div class="container container-unloaded">
                 <main class="main post-page">
     <article class="article-entry">
-        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在c语言开发中，经常会遇到使用指针，但是因为指针本身的复杂特性如果稍不留意就会产生一些意想不到的错误，且指针的错误很难排查。因此，本篇文章就记录一次在工作中使用指针产生错误的例子，以供自己后续参考并避免此类错误。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>上篇介绍最小启动，但通常实际系统启动时我们需要uboot引导内核代码，并将四大件压缩在sd卡或flash等储存介质中，系统上电后自行启动</p>
 <span id="more"></span>
 
-<h2 id="错误的出现及解决"><a href="#错误的出现及解决" class="headerlink" title="错误的出现及解决"></a>错误的出现及解决</h2><p>在一个端口初始化的时候，需要将写入flash中的文件读出，配置文件的结构体为pDemo_uc_config</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    INT32 portEn;</span><br><span class="line">    INT32 portStatus;</span><br><span class="line">&#125; pDemo_uc_config</span><br></pre></td></tr></table></figure>
+<h1 id="buildroot-uboot启动，sd卡方式"><a href="#buildroot-uboot启动，sd卡方式" class="headerlink" title="buildroot + uboot启动，sd卡方式"></a>buildroot + uboot启动，sd卡方式</h1><p>buildroot作用：集成编译构建 <strong>工具链</strong>，<strong>设备树DTB</strong>，<strong>根文件系统压缩包</strong></p>
+<p>uboot用于引导到内核代码</p>
+<p>sd卡存储uboot，内核镜像，设备树，根文件系统，qemu挂载sd卡直接启动</p>
+<p>buildroot版本：2024.02.2</p>
+<p>u-boot版本：2024.01</p>
+<h1 id="依赖包安装"><a href="#依赖包安装" class="headerlink" title="依赖包安装"></a>依赖包安装</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install -y build-essential git bison flex libncurses5-dev libncursesw5-dev \</span><br><span class="line">libssl-dev gawk wget diffstat unzip texinfo gcc-multilib g++-multilib chrpath socat \</span><br><span class="line">cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping libsdl1.2-dev \</span><br><span class="line">xterm libelf-dev zlib1g-dev device-tree-compiler qemu-system-arm qemu-utils parted \</span><br><span class="line">kpartx dosfstools e2fsprogs u-boot-tools</span><br></pre></td></tr></table></figure>
 
-<p>在init函数中进行初始化，init函数又调用了configInit函数</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> rv = configInit(p_port_config, porten, portStatus);</span><br><span class="line"><span class="keyword">if</span>(rv)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">/*exception handle*/</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*下面是一串包含p_port_config涉及到p_port_config的逻辑*/</span></span><br></pre></td></tr></table></figure>
-<p>configInit原型如下</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">configInit(pDemo_uc_config *p_port_config, INT32 porten, INT32 portStatus)</span><br><span class="line">&#123;</span><br><span class="line">    p_port_config = (pDemo_uc_config*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(pDemo_uc_config));</span><br><span class="line">    <span class="comment">/*初始化逻辑...*/</span></span><br><span class="line">    <span class="comment">/*...*/</span></span><br><span class="line">    <span class="keyword">return</span> rv;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>运行后，发现会卡死在涉及到p_port_config逻辑中使用p_port_config指针的地方。<br>在卡死的地方打印p_port_config的值，显示为nil，显然使用了空指针。</p>
-<p>既然定位到了空指针，那么空指针又是怎么来的呢？注意到configInit函数第一个参数使用的是pDemo_uc_config* 也就是一个指针变量，本来书写这段代码含义是将p_port_config指向的内容初始化，但是并没有出现初始化，究其原因是形参p_port_config和外部的实参p_port_config都是指针变量，指针变量也是变量的一种，当函数调用时，实参对形参确实赋值了，但是在返回时函数内的形参改变并不会反应到外部实参中。</p>
-<p>那么如何才能把函数内部的形参变化反映到实参上呢？参考平常的引用或者指针传参的经验，就是在使用一次指针。将configInit函数设计如下</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">configInit(pDemo_uc_config **pp_port_config, INT32 porten, INT32 portStatus)</span><br><span class="line">&#123;</span><br><span class="line">    *p_port_config = (pDemo_uc_config*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(pDemo_uc_config));</span><br><span class="line">    <span class="comment">/*初始化逻辑...*/</span></span><br><span class="line">    <span class="comment">/*...*/</span></span><br><span class="line">    <span class="keyword">return</span> rv;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用configInit的时候</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">configInit(&amp;p_port_config, porten, portStatus);</span><br></pre></td></tr></table></figure>
-<p>通过使用一个二级指针，该二级指针指向的是一个指向config结构体的指针，这样就可以达到对指针指向的config结构体初始化的目的。</p>
-<p>当然，也可以修改函数的返回值使其返回config结构体指针完成赋值，但初始设计给出的函数原型中返回值默认是错误码，因此这样无法进行改动。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p ~/qemu-sd-linux</span><br><span class="line">cd ~/qemu-sd-linux</span><br></pre></td></tr></table></figure>
+
+<h1 id="uboot-buildroot源码下载"><a href="#uboot-buildroot源码下载" class="headerlink" title="uboot + buildroot源码下载"></a>uboot + buildroot源码下载</h1><p>略</p>
+<h1 id="buildroot配置"><a href="#buildroot配置" class="headerlink" title="buildroot配置"></a>buildroot配置</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd ~/qemu-sd-linux/buildroot-2024.02.2</span><br><span class="line">make menuconfig</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>target options配置</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>选择值</th>
+<th>配置说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Target Architecture</td>
+<td>ARM (little endian)</td>
+<td>选择 ARM 小端架构，与 vexpress-a9 一致</td>
+</tr>
+<tr>
+<td>Target Architecture Variant</td>
+<td>cortex-A9</td>
+<td>精准匹配 CPU 核心型号</td>
+</tr>
+<tr>
+<td>Target ABI</td>
+<td>EABIhf</td>
+<td>硬浮点 ABI，与交叉编译器 arm-linux-gnueabihf 匹配</td>
+</tr>
+<tr>
+<td>Floating point strategy</td>
+<td>VFPv3-D16</td>
+<td>Cortex-A9 核心标配的 FPU 浮点单元</td>
+</tr>
+<tr>
+<td>ARM instruction set</td>
+<td>ARM</td>
+<td>标准 ARM 指令集，无需修改</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Toolchain</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>选择值</th>
+<th>配置说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Toolchain type</td>
+<td>Buildroot toolchain</td>
+<td>让 Buildroot 自动生成专属交叉工具链，兼容性最佳</td>
+</tr>
+<tr>
+<td>Kernel Headers</td>
+<td>Linux kernel 5.10.x headers</td>
+<td>与后续内核版本保持一致，LTS 稳定版</td>
+</tr>
+<tr>
+<td>C library</td>
+<td>glibc</td>
+<td>标准 GNU C 库，兼容性最好，追求极致体积可选 uClibc-ng</td>
+</tr>
+<tr>
+<td>C++ support</td>
+<td>勾选</td>
+<td>开启 C++ 编译支持，后续可编译 C++ 程序</td>
+</tr>
+<tr>
+<td>其他选项</td>
+<td>保持默认</td>
+<td>无需修改</td>
+</tr>
+</tbody></table>
+<ul>
+<li>System configuration系统配置</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>配置值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>System hostname</td>
+<td>qemu-sd-linux</td>
+<td>自定义系统主机名</td>
+</tr>
+<tr>
+<td>System banner</td>
+<td>Welcome to Buildroot</td>
+<td>系统启动欢迎语</td>
+</tr>
+<tr>
+<td>Root password</td>
+<td>自定义（如 root）</td>
+<td>系统 root 用户登录密码，默认空密码，建议设置</td>
+</tr>
+<tr>
+<td>Init system</td>
+<td>BusyBox init</td>
+<td>轻量级初始化系统，嵌入式场景首选；功能需求高可选 systemd</td>
+</tr>
+<tr>
+<td>&#x2F;dev management</td>
+<td>Dynamic using devtmpfs + mdev</td>
+<td>对应 BusyBox 的设备节点自动管理</td>
+</tr>
+<tr>
+<td>其他选项</td>
+<td>保持默认</td>
+<td>无需修改</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Kernel配置</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>配置值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Linux Kernel</td>
+<td>勾选</td>
+<td>开启内核编译，必选</td>
+</tr>
+<tr>
+<td>Kernel version</td>
+<td>Custom version</td>
+<td>选择长期支持稳定版</td>
+</tr>
+<tr>
+<td>Kernel configuration</td>
+<td>Using an in-tree defconfig file</td>
+<td>使用内核官方默认配置</td>
+</tr>
+<tr>
+<td>Defconfig name</td>
+<td>vexpress</td>
+<td>vexpress 开发板的官方内核配置，完美适配 QEMU</td>
+</tr>
+<tr>
+<td>Kernel binary format</td>
+<td>zImage</td>
+<td>U-Boot 可直接加载的内核镜像格式</td>
+</tr>
+<tr>
+<td>Build a Device Tree Blob (DTB)</td>
+<td>勾选</td>
+<td>生成设备树文件，必选</td>
+</tr>
+<tr>
+<td>In-tree Device Tree</td>
+<td>vexpress-v2p-ca9</td>
+<td>vexpress-a9 开发板对应的设备树路径，不可填错</td>
+</tr>
+<tr>
+<td>其他选项</td>
+<td>保持默认</td>
+<td>无需修改</td>
+</tr>
+</tbody></table>
+<ul>
+<li>target packages:</li>
+</ul>
+<ol>
+<li>Networking applications → 勾选 dropbear（SSH 服务）、iproute2</li>
+</ol>
+<ul>
+<li>Filesystem images:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>配置值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tar the root filesystem</td>
+<td>勾选</td>
+<td>生成根文件系统 tar 压缩包，方便解压到 SD 卡分区</td>
+</tr>
+<tr>
+<td>Compression method</td>
+<td>bzip2&#x2F;gzip</td>
+<td>任选一种压缩格式</td>
+</tr>
+<tr>
+<td>其他镜像格式（ext2&#x2F;3&#x2F;4、squashfs 等）</td>
+<td>取消勾选</td>
+<td>手动将 rootfs 解压到 SD 卡分区，无需预生成镜像</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Bootloaders 引导加载器配置</li>
+</ul>
+<p><strong>全部取消勾选</strong></p>
+<p><strong>编译</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make -j$(nproc)</span><br></pre></td></tr></table></figure>
+
+<p>产物均在 <code>output/images/</code> 目录下，核心文件：</p>
+<ul>
+<li><code>zImage</code>：Linux 内核镜像</li>
+<li><code>vexpress-v2p-ca9.dtb</code>：设备树文件，内核识别硬件必需</li>
+<li><code>rootfs.tar.bz2</code>：根文件系统压缩包，包含完整的 Linux 根目录</li>
+<li>交叉工具链路径：<code>output/host/bin/</code>，前缀为 <code>arm-linux-gnueabihf-</code></li>
+</ul>
+<p>其他产物有**<code>output/host/</code>** </p>
+<p>为主机端交叉编译工具链</p>
+<h1 id="uboot编译"><a href="#uboot编译" class="headerlink" title="uboot编译"></a>uboot编译</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加载默认配置</span></span><br><span class="line">make ARCH=arm CROSS_COMPILE=~/qemu-sd-linux/buildroot-2024.02.2/output/host/bin/arm-buildroot-linux-gnueabihf- vexpress_ca9x4_defconfig</span><br><span class="line">configs/vexpress_ca9x4_defconfig</span><br><span class="line"><span class="comment"># 编译</span></span><br><span class="line">make ARCH=arm CROSS_COMPILE=~/qemu-sd-linux/buildroot-2024.02.2/output/host/bin/arm-buildroot-linux-gnueabihf- -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
+
+<p>注：</p>
+<p>修改autoboot启动时间，防止时间过短</p>
+<p>Boot options–&gt;Autoboot options–&gt;delay in seconds before automatically booting</p>
+<h1 id="uboot产物"><a href="#uboot产物" class="headerlink" title="uboot产物"></a>uboot产物</h1><p><code>u-boot.bin</code>：U-Boot 纯二进制镜像，<strong>必须写入 SD 卡的 0 扇区（MBR 区域）</strong>，是引导启动的核心</p>
+<p><code>u-boot</code>：ELF 格式镜像，用于调试</p>
+<p><code>tools/mkimage</code>：U-Boot 自带的镜像制作工具，后续用于制作启动脚本</p>
+<h1 id="sd镜像制作"><a href="#sd镜像制作" class="headerlink" title="sd镜像制作"></a>sd镜像制作</h1><p>这里做一个 1 GiB 的 raw 镜像，两个分区：</p>
+<ul>
+<li>p1：64 MiB FAT32</li>
+<li>p2：剩余空间 ext4</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dd if=/dev/zero of=sdcard.img bs=1M count=1024</span><br><span class="line">parted -s sdcard.img mklabel msdos</span><br><span class="line">parted -s sdcard.img mkpart primary fat32 1MiB 65MiB</span><br><span class="line">parted -s sdcard.img mkpart primary ext4 65MiB 100%</span><br><span class="line">parted -s sdcard.img set 1 boot on</span><br></pre></td></tr></table></figure>
+
+<p>把镜像挂成 loop 设备：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LOOP=$(sudo losetup --find --show -P sdcard.img)</span><br><span class="line">echo &quot;$LOOP&quot;</span><br></pre></td></tr></table></figure>
+
+<p>格式化</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo mkfs.vfat -F 32 &quot;$&#123;LOOP&#125;p1&quot;</span><br><span class="line">sudo mkfs.ext4 -F &quot;$&#123;LOOP&#125;p2&quot;</span><br></pre></td></tr></table></figure>
+
+<p>拷贝文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /mnt/sd1 /mnt/sd2</span><br><span class="line">sudo mount &quot;$&#123;LOOP&#125;p1&quot; /mnt/sd1</span><br><span class="line">sudo mount &quot;$&#123;LOOP&#125;p2&quot; /mnt/sd2</span><br></pre></td></tr></table></figure>
+
+<p>把启动文件放到 FAT 分区：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo cp ~/qemu-sd-linux/buildroot-2024.02.2/output/images/zImage /mnt/sd1/</span><br><span class="line">sudo cp ~/qemu-sd-linux/buildroot-2024.02.2/output/images/vexpress-v2p-ca9.dtb /mnt/sd1/</span><br></pre></td></tr></table></figure>
+
+<p>把 rootfs 放到 ext4 分区：</p>
+<p>解压生成的rootfs.tar.bz2解压rootfs</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo rsync -aHAX rootfs/ /mnt/sd2/</span><br></pre></td></tr></table></figure>
+
+<p>uboot启动脚本</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cat &gt; boot.cmd &lt;&lt;&#x27;EOF&#x27;</span><br><span class="line">setenv bootargs console=ttyAMA0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rw</span><br><span class="line">fatload mmc 0:1 $&#123;kernel_addr_r&#125; zImage</span><br><span class="line">fatload mmc 0:1 $&#123;fdt_addr_r&#125; vexpress-v2p-ca9.dtb</span><br><span class="line">bootz $&#123;kernel_addr_r&#125; - $&#123;fdt_addr_r&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">mkimage -A arm -T script -C none -n &quot;vexpress-a9 boot&quot; -d boot.cmd boot.scr</span><br><span class="line"></span><br><span class="line">sudo cp boot.scr /mnt/sd1</span><br></pre></td></tr></table></figure>
+
+<p>解挂载，卸载loop设备</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sync</span><br><span class="line">sudo umount /mnt/sd1 /mnt/sd2</span><br><span class="line">sudo losetup -d &quot;$LOOP&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="qemu启动"><a href="#qemu启动" class="headerlink" title="qemu启动"></a>qemu启动</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-arm -M vexpress-a9 -m 512M -nographic -serial mon:stdio \</span><br><span class="line">  -kernel u-boot \</span><br><span class="line">  -drive if=sd,format=raw,file=sdcard.img</span><br></pre></td></tr></table></figure>
+
+<p>进入 U-Boot 后，先确认能看到 SD 卡：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mmc dev 0</span><br><span class="line">mmc rescan</span><br><span class="line">fatls mmc 0:1</span><br></pre></td></tr></table></figure>
+
+<p>可列出 <code>zImage</code>、<code>vexpress-v2p-ca9.dtb</code> 以后，再执行 boot 命令。</p>
+<h1 id="最终结果"><a href="#最终结果" class="headerlink" title="最终结果"></a>最终结果</h1><p><img src="/../image/qemu_uboot_linux_1.png" alt="结果"></p>
+<h1 id="问题及解决方法："><a href="#问题及解决方法：" class="headerlink" title="问题及解决方法："></a><strong>问题及解决方法</strong>：</h1><ol>
+<li>target ABI仅有EABI</li>
+</ol>
+<p>​	需要勾选Enable VFP extension support</p>
+<ol start="2">
+<li><p><strong>buildroot编译，无法寻找linux源码位置，显示linux-HEAD 404</strong></p>
+<p>kernel–&gt;kernel version–&gt;custom version</p>
+<p>buildroot根目录创建local.mk，打开后填写</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LINUX_OVERRIDE_SRCDIR = /home/你的用户名/linux-5.10.255</span><br></pre></td></tr></table></figure>
+
+<p>此方法会让 Buildroot 使用 rsync 同步源码变更，而非重新解压 tar 包，适合频繁修改内核源码的场景</p>
+</li>
+<li><p><strong>buildroot编译，Can’t find default configuration “arch&#x2F;arm&#x2F;configs&#x2F;vexpress_defconfig_defconfig”</strong></p>
+<p>Defconfig name无需填写全名，只填vexpress</p>
+</li>
+<li><p><strong>buildroot编译，没有规则可制作目标“arch&#x2F;arm&#x2F;boot&#x2F;dts&#x2F;arm&#x2F;vexpress-v2p-ca9.dtb.dtb</strong></p>
+<p>dts也无需写全名，只填vexpress-v2p-ca9</p>
+</li>
+</ol>
 
     </article>
     <!-- license -->
         <div class="license-wrapper">
             <p>原文作者：<a href="http://example.com">morris-wei</a>
-            <p>原文链接：<a href="http://example.com/2024/09/17/bug-record1-ptr-err/">http://example.com/2024/09/17/bug-record1-ptr-err/</a>
-            <p>发表日期：<a href="http://example.com/2024/09/17/bug-record1-ptr-err/">September 17th 2024, 8:15:00 am</a>
-            <p>更新日期：<a href="http://example.com/2024/09/17/bug-record1-ptr-err/">January 25th 2026, 12:53:47 am</a>
+            <p>原文链接：<a href="http://example.com/2026/04/07/linux_uboot_qemu/">http://example.com/2026/04/07/linux_uboot_qemu/</a>
+            <p>发表日期：<a href="http://example.com/2026/04/07/linux_uboot_qemu/">April 7th 2026, 11:20:13 pm</a>
+            <p>更新日期：<a href="http://example.com/2026/04/07/linux_uboot_qemu/">April 7th 2026, 11:34:12 pm</a>
             <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     <!-- paginator -->
     <ul class="post-paginator">
         <li class="next">
-                <div class="nextSlogan">Next Post</div>
-                <a href="/2026/03/29/linux_rebuild/" title="linux编译(1) qemu下的initrams最小启动">
-                    <div class="nextTitle">linux编译(1) qemu下的initrams最小启动</div>
-                </a>
         </li>
         <li class="previous">
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2026/03/29/linux_rebuild/" title="linux编译(1) qemu下的initrams最小启动">
+                    <div class="prevTitle">linux编译(1) qemu下的initrams最小启动</div>
+                </a>
         </li>
     </ul>
     <!-- comment -->
@@ -529,7 +810,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E7%9A%84%E5%87%BA%E7%8E%B0%E5%8F%8A%E8%A7%A3%E5%86%B3"><span class="toc-number">2.</span> <span class="toc-text">错误的出现及解决</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#buildroot-uboot%E5%90%AF%E5%8A%A8%EF%BC%8Csd%E5%8D%A1%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">buildroot + uboot启动，sd卡方式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BE%9D%E8%B5%96%E5%8C%85%E5%AE%89%E8%A3%85"><span class="toc-number">3.</span> <span class="toc-text">依赖包安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#uboot-buildroot%E6%BA%90%E7%A0%81%E4%B8%8B%E8%BD%BD"><span class="toc-number">4.</span> <span class="toc-text">uboot + buildroot源码下载</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#buildroot%E9%85%8D%E7%BD%AE"><span class="toc-number">5.</span> <span class="toc-text">buildroot配置</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#uboot%E7%BC%96%E8%AF%91"><span class="toc-number">6.</span> <span class="toc-text">uboot编译</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#uboot%E4%BA%A7%E7%89%A9"><span class="toc-number">7.</span> <span class="toc-text">uboot产物</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#sd%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C"><span class="toc-number">8.</span> <span class="toc-text">sd镜像制作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#qemu%E5%90%AF%E5%8A%A8"><span class="toc-number">9.</span> <span class="toc-text">qemu启动</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E7%BB%93%E6%9E%9C"><span class="toc-number">10.</span> <span class="toc-text">最终结果</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="toc-number">11.</span> <span class="toc-text">问题及解决方法：</span></a></li></ol>
             </div>
         <!-- sidebar -->
         <div class="sidebar sidebar-hide">
