@@ -19,7 +19,7 @@
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/image/qemu_uboot_linux_1.png">
 <meta property="article:published_time" content="2026-04-07T15:20:13.000Z">
-<meta property="article:modified_time" content="2026-04-07T15:34:12.011Z">
+<meta property="article:modified_time" content="2026-05-02T15:23:34.191Z">
 <meta property="article:author" content="morris-wei">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/image/qemu_uboot_linux_1.png">
@@ -720,7 +720,7 @@
 <p>进入 U-Boot 后，先确认能看到 SD 卡：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mmc dev 0</span><br><span class="line">mmc rescan</span><br><span class="line">fatls mmc 0:1</span><br></pre></td></tr></table></figure>
 
-<p>可列出 <code>zImage</code>、<code>vexpress-v2p-ca9.dtb</code> 以后，再执行 boot 命令。</p>
+<p>可列出 <code>zImage</code>、<code>vexpress-v2p-ca9.dtb</code> 以后，再依次执行 boot.scr的内容。</p>
 <h1 id="最终结果"><a href="#最终结果" class="headerlink" title="最终结果"></a>最终结果</h1><p><img src="/../image/qemu_uboot_linux_1.png" alt="结果"></p>
 <h1 id="问题及解决方法："><a href="#问题及解决方法：" class="headerlink" title="问题及解决方法："></a><strong>问题及解决方法</strong>：</h1><ol>
 <li>target ABI仅有EABI</li>
@@ -748,12 +748,16 @@
             <p>原文作者：<a href="http://example.com">morris-wei</a>
             <p>原文链接：<a href="http://example.com/2026/04/07/linux_uboot_qemu/">http://example.com/2026/04/07/linux_uboot_qemu/</a>
             <p>发表日期：<a href="http://example.com/2026/04/07/linux_uboot_qemu/">April 7th 2026, 11:20:13 pm</a>
-            <p>更新日期：<a href="http://example.com/2026/04/07/linux_uboot_qemu/">April 7th 2026, 11:34:12 pm</a>
+            <p>更新日期：<a href="http://example.com/2026/04/07/linux_uboot_qemu/">May 2nd 2026, 11:23:34 pm</a>
             <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     <!-- paginator -->
     <ul class="post-paginator">
         <li class="next">
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2026/05/02/linux_uboot_qemu_2/" title="linux编译(3) qemu下的uboot启动踩坑记录">
+                    <div class="nextTitle">linux编译(3) qemu下的uboot启动踩坑记录</div>
+                </a>
         </li>
         <li class="previous">
                 <div class="prevSlogan">Previous Post</div>
@@ -825,15 +829,25 @@
         
         
         
+        
+        
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 3
+        Total : 5
         </div>
         <!-- search  -->
     </div>
     <div class="post-archive">
             <div class="archive-year"> 2026 </div>
             <ul class="year-list">
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/02</span>
+            <a class="archive-post-title" href="/2026/05/02/linux_uboot_qemu_2/">linux编译(3) qemu下的uboot启动踩坑记录</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/02</span>
+            <a class="archive-post-title" href="/2026/05/02/linux_uboot_qemu_3/">linux编译(4) uboot tftp烧录</a>
+        </li>
         <li class="archive-post-item">
             <span class="archive-post-date">04/07</span>
             <a class="archive-post-title" href="/2026/04/07/linux_uboot_qemu/">linux编译(2) qemu下的uboot以sd镜像方式引导linux启动</a>

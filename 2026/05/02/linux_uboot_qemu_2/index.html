@@ -10,21 +10,21 @@
     <meta name="copyright" content="morris-wei">
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     <meta name="description" content="">
-    <meta name="description" content="May the Force be with you :&#41;">
-<meta property="og:type" content="website">
-<meta property="og:title" content="[404]">
-<meta property="og:url" content="http://example.com/404.html">
+    <meta name="description" content="前言编译(2)中介绍了启动linux流程，但最终的bootscr执行是手动的，autoboot是失败的，本文尝试分析autoboot失败的原因，及解决方法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux编译(3) qemu下的uboot启动踩坑记录">
+<meta property="og:url" content="http://example.com/2026/05/02/linux_uboot_qemu_2/index.html">
 <meta property="og:site_name" content="morris blog">
-<meta property="og:description" content="May the Force be with you :&#41;">
+<meta property="og:description" content="前言编译(2)中介绍了启动linux流程，但最终的bootscr执行是手动的，autoboot是失败的，本文尝试分析autoboot失败的原因，及解决方法">
 <meta property="og:locale">
-<meta property="article:published_time" content="2026-01-24T15:26:19.680Z">
-<meta property="article:modified_time" content="2026-01-24T15:26:19.680Z">
+<meta property="article:published_time" content="2026-05-02T15:18:13.000Z">
+<meta property="article:modified_time" content="2026-05-02T16:05:13.074Z">
 <meta property="article:author" content="morris-wei">
 <meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
-    <title>[404] · morriswei&#39;s Studio</title>
+    <title>linux编译(3) qemu下的uboot启动踩坑记录 · morriswei&#39;s Studio</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -212,7 +212,7 @@
             document.write('<script src="/lib/jquery.min.js" />')
         }
     </script>
-        <body class="four-zero-four-body">
+        <body class="post-body">
         <!-- header -->
         <header class="header header-mobile">
     <!-- top read progress line -->
@@ -242,7 +242,7 @@
             <a href="/">morriswei&#39;s Studio.</a>
         </div>
         <div class="post-title header-element">
-            <a href="#" class="post-name">[404]</a>
+            <a href="#" class="post-name">linux编译(3) qemu下的uboot启动踩坑记录</a>
         </div>
     </div>
 </header>
@@ -259,24 +259,59 @@
 
         <!-- wrapper -->
         <div class="wrapper">
-            <div class="site-intro" style="">
+            <div class="site-intro" style="    height:50vh;
+">
     <!-- 主页  -->
-    <!-- about页 -->
+    <!-- 404页  -->
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/intro/404-bg.jpg)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
-                [404]
-            <!-- about -->
+                linux编译(3) qemu下的uboot启动踩坑记录
+            <!-- 404 -->
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
-                May the Force be with you :&#41;
+            <!-- 404 -->
         </p>
         <!-- 文章页 meta -->
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                    <div class="post-intro-tags" >
+</div>
+
+                <!-- 文章字数统计 -->
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">661</span>阅读时长: <span class="post-count reading-time">2 min</span></span>
+                    </div>
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2026/05/02</span>
+                    <!-- busuanzi -->
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
     </div>
 </div>
 
@@ -405,7 +440,87 @@
 
             <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" alt="loading">
             <div class="container container-unloaded">
-                <!-- 不可以删除，否则会调用 post 的 layout -->
+                <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>编译(2)中介绍了启动linux流程，但最终的bootscr执行是手动的，autoboot是失败的，本文尝试分析autoboot失败的原因，及解决方法</p>
+<span id="more"></span>
+<h1 id="uboot启动流程简要分析"><a href="#uboot启动流程简要分析" class="headerlink" title="uboot启动流程简要分析"></a>uboot启动流程简要分析</h1><p>以下出自uboot文档</p>
+<ol>
+<li>复位后执行对应架构的start.S，位置在arch&#x2F;arm&#x2F;cpu&#x2F;armv7&#x2F;start.S，目标是进行cpu初始化</li>
+<li>进入 board_init_f()之前的初始化，要求 lowlevel_init() 只能做“最少的事”：没有 global_data、没有 BSS、通常也没有栈，不能碰 SDRAM，也不能用串口；它的职责只是把环境收拾到足以进入 board_init_f()。</li>
+<li>init_sequence_f 做前置初始化，malloc、log&#x2F;bootstage&#x2F;event&#x2F;blobs 初始化，然后初始化时钟、定时器、环境变量、波特率、串口和控制台；接着才是显示板卡&#x2F;CPU 信息、dram_init() 等</li>
+<li>为重定位做内存预留，然后把自己搬到 RAM 里，初始化序列后半段会按顺序预留 FDT、bootstage、bloblist、栈、board info、global data、malloc 区、U-Boot 镜像本体等内存；U-Boot 从“临时位置”切换到“RAM 中的正式位置”</li>
+<li>进入board_init_r()，做重定位后的初始化。 common&#x2F;board_r.c 里的 init_sequence_r 会继续初始化重定位相关逻辑、设备模型、环境变量重定位、串口&#x2F;标准 IO、控制台、网络、中断等</li>
+<li>run_main_loop() 里反复进入 main_loop()。 bootdelay_process() 会读取 bootdelay 和 bootcmd，autoboot_command() 会在倒计时结束后执行 bootcmd(<strong>重点</strong>)</li>
+</ol>
+<p>bootcmd不是需要执行的脚本，所以报错。bootcmd为环境变量，需要更改，再saveenv</p>
+<h1 id="saveenv-问题"><a href="#saveenv-问题" class="headerlink" title="saveenv 问题"></a>saveenv 问题</h1><p>savenv完后，重新reset，发现未能生效，同时发现启动时会有warning</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Loading Environment from Flash... *** Warning - bad CRC, using default environment</span><br></pre></td></tr></table></figure>
+
+<p>需要uboot编译开启环境变量持久化存放，勾选了uboot编译时environment中FAT，设置了environment size</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Saving Environment to Flash... Error: end address not on sector boundary</span><br><span class="line">Error: end address not on sector boundary</span><br><span class="line">Failed (1)</span><br></pre></td></tr></table></figure>
+<p>menuconfig选项需要取消<strong>Environment in flash</strong></p>
+<ul>
+<li><p>选中<strong>Environment is in a FAT filesystem</strong></p>
+<p><strong>Name of the block device for the environment–&gt;mmc</strong></p>
+<p><strong>Device and partition for where to store the environment in FAT–&gt;0:1</strong></p>
+<p><strong>Name of the FAT file to use for the environment–&gt;uboot.env</strong></p>
+</li>
+<li><p>因为是sd卡，Environment Size和mmc device number、mmc partition number保持默认即可</p>
+</li>
+</ul>
+<h1 id="init问题"><a href="#init问题" class="headerlink" title="init问题"></a>init问题</h1><p>报错</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VFS: Mounted root (ext4 filesystem) on device 179:2. devtmpfs: error mounting -2以及Kernel panic - not syncing: No working init found.  Try passing init= option to kernel. See Linux Documentation/admin-guide/init.rst for guidance.</span><br></pre></td></tr></table></figure>
+
+<p>rootfs挂载存在问题，内核启动后没有找到&#x2F;dev 以及&#x2F;sbin中的init程序，在拷贝rootfs时应该拷贝rootfs&#x2F;*而不是rootfs文件夹，内核并不知道rootfs中的内容才是真正的</p>
+<p>rootfs挂载后通过</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ext4ls mmc 0:2</span><br></pre></td></tr></table></figure>
+<p>命令来初步验证</p>
+
+    </article>
+    <!-- license -->
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://example.com">morris-wei</a>
+            <p>原文链接：<a href="http://example.com/2026/05/02/linux_uboot_qemu_2/">http://example.com/2026/05/02/linux_uboot_qemu_2/</a>
+            <p>发表日期：<a href="http://example.com/2026/05/02/linux_uboot_qemu_2/">May 2nd 2026, 11:18:13 pm</a>
+            <p>更新日期：<a href="http://example.com/2026/05/02/linux_uboot_qemu_2/">May 3rd 2026, 12:05:13 am</a>
+            <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2026/05/02/linux_uboot_qemu_3/" title="linux编译(4) uboot tftp烧录">
+                    <div class="nextTitle">linux编译(4) uboot tftp烧录</div>
+                </a>
+        </li>
+        <li class="previous">
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2026/04/07/linux_uboot_qemu/" title="linux编译(2) qemu下的uboot以sd镜像方式引导linux启动">
+                    <div class="prevTitle">linux编译(2) qemu下的uboot以sd镜像方式引导linux启动</div>
+                </a>
+        </li>
+    </ul>
+    <!-- comment -->
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+            
+            
+            
+            <!-- utteranc评论 -->
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+            
+            
+            
+        </div>
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    <!-- Mathjax -->
+</main>
 
                 <!-- profile -->
             </div>
@@ -429,6 +544,13 @@
 
         </div>
         <!-- toc -->
+            <div class="toc-wrapper toc-wrapper-loding" style=    top:50vh;
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#uboot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E7%AE%80%E8%A6%81%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">uboot启动流程简要分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#saveenv-%E9%97%AE%E9%A2%98"><span class="toc-number">3.</span> <span class="toc-text">saveenv 问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#init%E9%97%AE%E9%A2%98"><span class="toc-number">4.</span> <span class="toc-text">init问题</span></a></li></ol>
+            </div>
         <!-- sidebar -->
         <div class="sidebar sidebar-hide">
     <ul class="sidebar-tabs sidebar-tabs-active-0">
@@ -524,6 +646,8 @@
         <!-- busuanzi -->
             <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
         <!-- async load share.js -->
+            <script src="/scripts/share.js" async></script>
         <!-- mermaid -->
+            <script src='https://cdn.jsdelivr.net/npm/mermaid@8.11.0/dist/mermaid.min.js' onload="window.mermaid.initialize({theme: 'dark'})" async></script>
     </body>
 </html>

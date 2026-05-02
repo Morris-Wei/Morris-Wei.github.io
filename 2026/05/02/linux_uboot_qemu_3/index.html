@@ -10,21 +10,21 @@
     <meta name="copyright" content="morris-wei">
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     <meta name="description" content="">
-    <meta name="description" content="May the Force be with you :&#41;">
-<meta property="og:type" content="website">
-<meta property="og:title" content="[404]">
-<meta property="og:url" content="http://example.com/404.html">
+    <meta name="description" content="前言开发板开发时，为加快开发验证速度，使用tftp烧录镜像，无需反复挂载重装sd&#x2F;nand网络方式烧写，是一般开发调试时常用手段">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux编译(4) uboot tftp烧录">
+<meta property="og:url" content="http://example.com/2026/05/02/linux_uboot_qemu_3/index.html">
 <meta property="og:site_name" content="morris blog">
-<meta property="og:description" content="May the Force be with you :&#41;">
+<meta property="og:description" content="前言开发板开发时，为加快开发验证速度，使用tftp烧录镜像，无需反复挂载重装sd&#x2F;nand网络方式烧写，是一般开发调试时常用手段">
 <meta property="og:locale">
-<meta property="article:published_time" content="2026-01-24T15:26:19.680Z">
-<meta property="article:modified_time" content="2026-01-24T15:26:19.680Z">
+<meta property="article:published_time" content="2026-05-02T15:39:13.000Z">
+<meta property="article:modified_time" content="2026-05-02T16:20:20.256Z">
 <meta property="article:author" content="morris-wei">
 <meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
-    <title>[404] · morriswei&#39;s Studio</title>
+    <title>linux编译(4) uboot tftp烧录 · morriswei&#39;s Studio</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -212,7 +212,7 @@
             document.write('<script src="/lib/jquery.min.js" />')
         }
     </script>
-        <body class="four-zero-four-body">
+        <body class="post-body">
         <!-- header -->
         <header class="header header-mobile">
     <!-- top read progress line -->
@@ -242,7 +242,7 @@
             <a href="/">morriswei&#39;s Studio.</a>
         </div>
         <div class="post-title header-element">
-            <a href="#" class="post-name">[404]</a>
+            <a href="#" class="post-name">linux编译(4) uboot tftp烧录</a>
         </div>
     </div>
 </header>
@@ -259,24 +259,59 @@
 
         <!-- wrapper -->
         <div class="wrapper">
-            <div class="site-intro" style="">
+            <div class="site-intro" style="    height:50vh;
+">
     <!-- 主页  -->
-    <!-- about页 -->
+    <!-- 404页  -->
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/intro/404-bg.jpg)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
-                [404]
-            <!-- about -->
+                linux编译(4) uboot tftp烧录
+            <!-- 404 -->
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
-                May the Force be with you :&#41;
+            <!-- 404 -->
         </p>
         <!-- 文章页 meta -->
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                    <div class="post-intro-tags" >
+</div>
+
+                <!-- 文章字数统计 -->
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">899</span>阅读时长: <span class="post-count reading-time">4 min</span></span>
+                    </div>
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2026/05/02</span>
+                    <!-- busuanzi -->
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
     </div>
 </div>
 
@@ -405,7 +440,89 @@
 
             <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" alt="loading">
             <div class="container container-unloaded">
-                <!-- 不可以删除，否则会调用 post 的 layout -->
+                <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>开发板开发时，为加快开发验证速度，使用tftp烧录镜像，无需反复挂载重装sd&#x2F;nand<br>网络方式烧写，是一般开发调试时常用手段</p>
+<span id="more"></span>
+
+<h1 id="安装及准备环境"><a href="#安装及准备环境" class="headerlink" title="安装及准备环境"></a>安装及准备环境</h1><p><strong>安装tftp服务器</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install tftpd-hpa -y</span><br><span class="line"></span><br><span class="line"># 3 个文件复制到 TFTP 目录</span><br><span class="line">sudo cp ~/qemu-sd-linux/buildroot-2024.02.2/output/images/zImage /srv/tftp</span><br><span class="line">sudo cp ~/qemu-sd-linux/buildroot-2024.02.2/output/images/vexpress-v2p-ca9.dtb /srv/tftp/</span><br><span class="line">sudo cp ~/qemu-sd-linux/buildroot-2024.02.2/output/images/rootfs.tar.bz2 /srv/tftp/</span><br><span class="line">或者</span><br><span class="line">sudo cp ~/qemu-sd-linux/buildroot-2024.02.2/output/images/rootfs.ext4  /srv/tftp/</span><br><span class="line"></span><br><span class="line"># 4. 重启服务</span><br><span class="line">sudo systemctl restart tftpd-hpa</span><br><span class="line"></span><br><span class="line">sudo systemctl status tftpd-hpa</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置qemu的bridge及tap网卡</strong></p>
+<p>如果使用qemu默认的user模式的虚拟网卡，是无法与ubuntu上的tftp服务器进行交互的(至少无法做到ping通)<br>参考其他博文，user模式相当于虚拟机的NAT模式，NAT屏蔽qemu的虚拟网卡和tftp服务器物理网卡的通信(至少网段需要是设置成默认10.0.0.x才可以，但多次尝试没有成功)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-arm -M vexpress-a9 -m 512M -nographic -serial mon:stdio \</span><br><span class="line">  -kernel ./u-boot-2024.01/u-boot \</span><br><span class="line">  -drive if=sd,format=raw,file=sdcard.img \</span><br><span class="line">  -net nic -net user</span><br></pre></td></tr></table></figure>
+
+<p>因此需要使用tap网卡模式，并且需要和ubuntu的物理网卡一同挂载bridge下通信。tap原理相当于在ubuntu虚拟出一个二层的网卡，而同一bridge下又可以互相转发二层帧，达到通信目的</p>
+<p>qemu nic(tftp client) — bridge — phy net(tftp server)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># 安装依赖</span><br><span class="line">sudo apt install bridge-utils uml-utilities</span><br><span class="line">sudo apt install isc-dhcp-client</span><br><span class="line"># 创建网桥 br0</span><br><span class="line">sudo brctl addbr br0</span><br><span class="line"># 创建 tap0 虚拟网卡</span><br><span class="line">sudo tunctl -t tap0 -u `whoami`</span><br><span class="line"># 把 tap0 加入网桥</span><br><span class="line">sudo brctl addif br0 tap0</span><br><span class="line"># 物理网卡关闭</span><br><span class="line">sudo ifconfig ens33 down</span><br><span class="line"># 物理网卡挂在br0下</span><br><span class="line">sudo brctl addif br0 ens33</span><br><span class="line"># 启动br0接口</span><br><span class="line">sudo ifconfig br0 0.0.0.0 promisc up</span><br><span class="line"># 启用物理网卡</span><br><span class="line">sudo ifconfig ens33 0.0.0.0 promisc up</span><br><span class="line"># 从 dhcp 服务器获得 br0 的 IP 地址</span><br><span class="line">sudo dhclient br0</span><br><span class="line">sudo ifconfig tap0 0.0.0.0 promisc up    # 启用 tap0 接口</span><br></pre></td></tr></table></figure>
+
+<p>加上tap和ifname</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-arm -M vexpress-a9 -m 512M -nographic -serial mon:stdio \</span><br><span class="line">  -kernel ./u-boot-2024.01/u-boot \</span><br><span class="line">  -drive if=sd,format=raw,file=sdcard.img \</span><br><span class="line">  -net nic -net tap,ifname=tap0,script=no,downscript=no</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">setenv serverip xxxx(物理网卡)</span><br><span class="line">setenv ipaddr xxxx(虚拟网卡)</span><br><span class="line">setenv netmask 255.255.255.0</span><br><span class="line">saveenv</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="tftp下载-写入-SD-卡"><a href="#tftp下载-写入-SD-卡" class="headerlink" title="tftp下载 + 写入 SD 卡"></a>tftp下载 + 写入 SD 卡</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"># 下载内核到内存地址 0x60008000</span><br><span class="line">tftpboot 0x60008000 zImage</span><br><span class="line"># 写入 SD卡 0号设备、1号分区(FAT)</span><br><span class="line">fatwrite mmc 0:1 0x60008000 zImage $filesize</span><br><span class="line"></span><br><span class="line"># 下载设备树到内存地址 0x61000000</span><br><span class="line">tftpboot 0x61000000 vexpress-v2p-ca9.dtb</span><br><span class="line"></span><br><span class="line"># 写入 SD卡 FAT分区</span><br><span class="line">fatwrite mmc 0:1 0x61000000 vexpress-v2p-ca9.dtb $filesize</span><br><span class="line"></span><br><span class="line"># 下载 rootfs 压缩包到高地址内存（避免覆盖内核）</span><br><span class="line"># tftpboot 0x62000000 rootfs.tar.gz</span><br><span class="line">tftpboot 0x62000000 rootfs.ext4</span><br><span class="line"></span><br><span class="line"># 计算rootfs烧写所需要的扇区数，相当于除以rootfs.ext4大小除以512字节向上取整</span><br><span class="line"># 注：tftpboot后filesize就是文件大小</span><br><span class="line">setexpr temp $&#123;filesize&#125; + 0x1FF</span><br><span class="line"></span><br><span class="line">setexpr rootfs_sectors $&#123;temp&#125; / 0x200</span><br><span class="line"></span><br><span class="line"># gz文件需要解压(可忽略)</span><br><span class="line"># gunzip 0x82000000 0x62000000 $&#123;filesize&#125;</span><br><span class="line"></span><br><span class="line"># 切换到SD卡设备</span><br><span class="line">mmc dev 0</span><br><span class="line"># 自动读取分区2的起始扇区，保存到变量 rootfs_start</span><br><span class="line">part start mmc 0 2 rootfs_start</span><br><span class="line"></span><br><span class="line">mmc write 0x62000000 $&#123;rootfs_start&#125; $&#123;rootfs_sectors&#125;</span><br><span class="line"></span><br><span class="line">run bootcmd</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><ol>
+<li>Unknown command ‘ext4write’</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># uboot编译开启</span></span><br><span class="line">File systems →</span><br><span class="line">Enable EXT4 write support (optional)</span><br><span class="line">Command line interface →</span><br><span class="line">Filesystem <span class="built_in">command</span> →</span><br><span class="line">ext4write <span class="built_in">command</span> (optional) </span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>Unsupported feature metadata_csum found, not writing. ** Error ext4fs_write() ** ** Unable to write file rootfs.tar.bz2 **</li>
+</ol>
+<p> 原因：U-Boot 的 ext4 驱动<strong>明确不支持 metadata_csum（元数据校验和）特性</strong>（自 2019 年补丁起强制执行写入保护），当目标 ext4 分区启用此特性时，执行 ext4write 会触发报错并拒绝写入。</p>
+<p>格式化时去掉metadata_csum</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mkfs.ext4 -O ^metadata_csum,^64bit -F &quot;$&#123;LOOP&#125;p2&quot;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>uboot没有setexpr</li>
+</ol>
+<p>位置：CLI–Shell scripting commands–setexpr</p>
+
+    </article>
+    <!-- license -->
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://example.com">morris-wei</a>
+            <p>原文链接：<a href="http://example.com/2026/05/02/linux_uboot_qemu_3/">http://example.com/2026/05/02/linux_uboot_qemu_3/</a>
+            <p>发表日期：<a href="http://example.com/2026/05/02/linux_uboot_qemu_3/">May 2nd 2026, 11:39:13 pm</a>
+            <p>更新日期：<a href="http://example.com/2026/05/02/linux_uboot_qemu_3/">May 3rd 2026, 12:20:20 am</a>
+            <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+        </li>
+        <li class="previous">
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2026/05/02/linux_uboot_qemu_2/" title="linux编译(3) qemu下的uboot启动踩坑记录">
+                    <div class="prevTitle">linux编译(3) qemu下的uboot启动踩坑记录</div>
+                </a>
+        </li>
+    </ul>
+    <!-- comment -->
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+            
+            
+            
+            <!-- utteranc评论 -->
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+            
+            
+            
+        </div>
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    <!-- Mathjax -->
+</main>
 
                 <!-- profile -->
             </div>
@@ -429,6 +546,13 @@
 
         </div>
         <!-- toc -->
+            <div class="toc-wrapper toc-wrapper-loding" style=    top:50vh;
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E5%87%86%E5%A4%87%E7%8E%AF%E5%A2%83"><span class="toc-number">2.</span> <span class="toc-text">安装及准备环境</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#tftp%E4%B8%8B%E8%BD%BD-%E5%86%99%E5%85%A5-SD-%E5%8D%A1"><span class="toc-number">3.</span> <span class="toc-text">tftp下载 + 写入 SD 卡</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">4.</span> <span class="toc-text">问题</span></a></li></ol>
+            </div>
         <!-- sidebar -->
         <div class="sidebar sidebar-hide">
     <ul class="sidebar-tabs sidebar-tabs-active-0">
@@ -524,6 +648,8 @@
         <!-- busuanzi -->
             <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
         <!-- async load share.js -->
+            <script src="/scripts/share.js" async></script>
         <!-- mermaid -->
+            <script src='https://cdn.jsdelivr.net/npm/mermaid@8.11.0/dist/mermaid.min.js' onload="window.mermaid.initialize({theme: 'dark'})" async></script>
     </body>
 </html>
